@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 typedef enum {
-    Start,
+    Start = 0,
     Pause,
     Terminate,
     Left,
