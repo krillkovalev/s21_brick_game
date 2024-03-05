@@ -1,102 +1,105 @@
-// #include "s21_tetris.h"
+#include "s21_tetris.h"
+#define ROWS 20
+#define COLUMNS 10
 
-#include <ncurses.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+void moveDown(char(*field)[COLUMNS], char (*shape)[2], int y, int x);
 
-WINDOW *create_newwin(int height, int width, int start_y, int start_x);
-void destroy_win(WINDOW *local_win);
-void windows_manipulation(WINDOW *my_win, int height, int width, int* start_x, int* start_y);
-WINDOW *create_figure(int height, int width, int start_y, int start_x);
+int main(void) {
 
-int main()
-{ WINDOW *my_win;
- int start_x, start_y, width, height;
- int ch;
+   // for (int i = 0; i < COLUMNS; i++) {
+   //    for (int j = 0; j < ROWS; j++) {
+   //       printf("0");
+   //    }
+   // printf("\n");
+   // }
+   // printf("\n");
+   char field[ROWS][COLUMNS] = {
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'}
+};
 
- initscr(); 
- cbreak();   
- keypad(stdscr, TRUE);
-    curs_set(0); // Если 0, прячет курсор
-    noecho(); // Не показывает, что печатает пользователь
+//    for (int i = 0; i < ROWS; i++) {
+//       for (int j = 0; j < COLUMNS; j++) {
+//          printf("%c", field[i][j]);
+//       }
+//    printf("\n");
+//    }
+//    printf("\n");
+   int x = 0, y = 3;
+   char shape[2][2] = {{'1', '1'}, {'1', '1'}};
+   moveDown(field, shape, x, y);
+   for (int i = 0; i < ROWS; i++) {
+      for (int j = 0; j < COLUMNS; j++) {
+         printf("%c ", field[i][j]);
+      }
+      printf("\n");
+   }
+   printf("\n");
+//    for (int i = 0; i < 2; i++) {
+//       for (int j = 0; j < 2; j++) {
+//          printf("%d ", shape[i][j]);
+//       }
+//    printf("\n");
+//    }
+//    printf("\n");   
+//    int shape_1[4][4] = {{0, 0, 0, 0}, {1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+   
+//    for (int i = 0; i < 4; i++) {
+//       for (int j = 0; j < 4; j++) {
+//          printf("%d ", shape_1[i][j]);
+//       }
+//    printf("\n");
+//    }
 
-    //init_pair(1, COLOR_WHITE, COLOR_BLUE);
-    
 
- height = 3;
- width = 10;
- start_y = (LINES - height) / 2; /* Calculating for a center placement */
- start_x = (COLS - width) / 2; /* of the window  */
- //printw("Press F1 to exit");
- refresh();
- create_newwin(30, 20, 0, 0);
-//  my_win = create_newwin(height, width, start_y, start_x);
- int figure_x = 2, figure_y = 2;
- int square_x = 3, square_y = 3;
-//  WINDOW *my_figure = create_figure(2, 10, 2, 2); // создали прямоугольник
-//  windows_manipulation(my_figure, 2, 10, &figure_x, &figure_y);
- WINDOW *square = create_figure(3, 6, square_y, square_x); // создалии квадрат
- windows_manipulation(square, 3, 6, &square_x, &square_y);
-//  windows_manipulation(my_win, height, width, &start_x, &start_y);
-
-     
- endwin();   /* End curses mode    */
- return 0;
 }
 
-WINDOW *create_newwin(int height, int width, int start_y, int start_x) { 
-   WINDOW *local_win;
-      
-   init_pair(1, COLOR_BLUE, COLOR_WHITE);
-   local_win = newwin(height, width, start_y, start_x);
-   box(local_win, 0 , 0);
-   wbkgd(local_win, COLOR_PAIR(1));
-   wrefresh(local_win);  /*Show that box*/
+// void field_current(int arr[10][20])
 
-   return local_win;
+void moveDown(char(*field)[COLUMNS], char (*shape)[2], int y, int x) {
+    // Проверяем, не достигла ли фигура нижней границы игрового поля
+    if (y + 4 > ROWS) {
+        return; // Фигура достигла нижней границы, сдвиг невозможен
+    }
+
+    // Сдвигаем фигуру вниз
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            if (shape[i][j] == '1') {
+                // Проверяем, не столкнулась ли фигура с другими блоками
+                if (field[y + i + 1][x + j] == '1') {
+                    return; // Столкновение, сдвиг невозможен
+                }
+                // Сдвигаем блок вниз
+                field[y + i + 1][x + j] = '1';
+            }
+        }
+    }
+
+    // Очищаем предыдущую позицию фигуры
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            if (shape[i][j] == '1') {
+                field[y + i][x + j] = '1';
+            }
+        }
+    }
 }
-
-void windows_manipulation(WINDOW *my_win, int height, int width, int* start_x, int* start_y) {
-   int ch;
-   while((ch = getch()) != 'q')
- { switch(ch)
-  { case KEY_LEFT:
-    destroy_win(my_win);
-    my_win = create_newwin(height, width, *start_y, --*start_x);
-    break;
-   case KEY_RIGHT:
-    destroy_win(my_win);
-    my_win = create_newwin(height, width, *start_y, ++*start_x);
-    break;
-   case KEY_UP:
-    destroy_win(my_win);
-    my_win = create_newwin(height, width, --*start_y, *start_x);
-    break;
-   case KEY_DOWN:
-    destroy_win(my_win);
-    my_win = create_newwin(height, width, ++*start_y, *start_x);
-    break; 
-  }
- }   
-}
-
-WINDOW *create_figure(int height, int width, int start_y, int start_x) { 
-   WINDOW *local_win;
-      
-   init_pair(1, COLOR_BLUE, COLOR_WHITE);
-   local_win = newwin(height, width, start_y, start_x);
-   box(local_win, 0 , 0);
-   wbkgd(local_win, COLOR_PAIR(1));
-   wrefresh(local_win);  /*Show that box*/
-
-   return local_win;
-}
-
-void destroy_win(WINDOW *local_win) { 
-   wborder(local_win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
-
-   wrefresh(local_win);
-   delwin(local_win);
-}
-

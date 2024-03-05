@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 typedef enum {
     Start = 0,
