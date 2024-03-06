@@ -2,17 +2,10 @@
 #define ROWS 20
 #define COLUMNS 10
 
-void moveDown(char(*field)[COLUMNS], char (*shape)[2], int y, int x);
+void move_down(char(*field)[COLUMNS], char(*shape)[2], int* current_x, int* current_y);
+void print_field(char(*field)[COLUMNS]);
 
 int main(void) {
-
-   // for (int i = 0; i < COLUMNS; i++) {
-   //    for (int j = 0; j < ROWS; j++) {
-   //       printf("0");
-   //    }
-   // printf("\n");
-   // }
-   // printf("\n");
    char field[ROWS][COLUMNS] = {
                         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
                         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
@@ -36,69 +29,37 @@ int main(void) {
                         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'}
 };
 
-//    for (int i = 0; i < ROWS; i++) {
-//       for (int j = 0; j < COLUMNS; j++) {
-//          printf("%c", field[i][j]);
-//       }
-//    printf("\n");
-//    }
-//    printf("\n");
-   int x = 0, y = 3;
+   int current_x = 4, current_y = 0;
    char shape[2][2] = {{'1', '1'}, {'1', '1'}};
-   moveDown(field, shape, x, y);
-   for (int i = 0; i < ROWS; i++) {
-      for (int j = 0; j < COLUMNS; j++) {
-         printf("%c ", field[i][j]);
-      }
-      printf("\n");
-   }
-   printf("\n");
-//    for (int i = 0; i < 2; i++) {
-//       for (int j = 0; j < 2; j++) {
-//          printf("%d ", shape[i][j]);
-//       }
-//    printf("\n");
-//    }
-//    printf("\n");   
-//    int shape_1[4][4] = {{0, 0, 0, 0}, {1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}};
-   
-//    for (int i = 0; i < 4; i++) {
-//       for (int j = 0; j < 4; j++) {
-//          printf("%d ", shape_1[i][j]);
-//       }
-//    printf("\n");
-//    }
-
-
-}
-
-// void field_current(int arr[10][20])
-
-void moveDown(char(*field)[COLUMNS], char (*shape)[2], int y, int x) {
-    // Проверяем, не достигла ли фигура нижней границы игрового поля
-    if (y + 4 > ROWS) {
-        return; // Фигура достигла нижней границы, сдвиг невозможен
-    }
-
-    // Сдвигаем фигуру вниз
-    for (int i = 0; i < 2; i++) {
+       for (int i = 0; i < 2; i++) { // Инициализируем начальную позицию фигурки
         for (int j = 0; j < 2; j++) {
             if (shape[i][j] == '1') {
-                // Проверяем, не столкнулась ли фигура с другими блоками
-                if (field[y + i + 1][x + j] == '1') {
-                    return; // Столкновение, сдвиг невозможен
-                }
-                // Сдвигаем блок вниз
-                field[y + i + 1][x + j] = '1';
+                field[i + current_y][j + current_x] = '1';
             }
         }
     }
+    move_down(field, shape, &current_x, &current_y);
+    print_field(field);
 
-    // Очищаем предыдущую позицию фигуры
-    for (int i = 0; i < 2; i++) {
+}
+
+void print_field(char(*field)[COLUMNS]) {
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLUMNS; j++) {
+            printf("%c ", field[i][j]);
+      }
+   printf("\n");
+   }
+   printf("\n");
+}
+
+
+void move_down(char(*field)[COLUMNS], char(*shape)[2], int* current_x, int* current_y) {
+    char shape[2][2] = {{'1', '1'}, {'1', '1'}};
+       for (int i = 0; i < 2; i++) { // Инициализируем начальную позицию фигурки
         for (int j = 0; j < 2; j++) {
             if (shape[i][j] == '1') {
-                field[y + i][x + j] = '1';
+                field[i + *current_y][j + *current_x] = '0';
             }
         }
     }
