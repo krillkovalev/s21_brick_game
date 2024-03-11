@@ -340,13 +340,13 @@ matrix_figure rotate_figure(matrix_figure shape) {
   return shape;
 }
 
-
 void part_of_ship(matrix_figure shape, char (*field)[10]) {
     for (int i = 0; i < shape.rows; i++) {
         for (int j = 0; j < shape.columns; j++) {
-            if (shape.work_figure[i][j] == 'X') {
-                field[i + shape.current_y - OFFSET_Y][j + shape.current_x - OFFSET_X] = 'X';
-                shape.work_figure[i][j] = ' ';
+            if (shape.work_figure[i][j] == 'X'){
+                field[i + shape.current_y - OFFSET_Y][j + shape.current_x / 2 - OFFSET_X / 2] = 'X';
+                shape.work_figure[i][j] = ' '; // потом переписать!!! надо удалять фигуру а не стирать!!!
+
             }
         }
     }
