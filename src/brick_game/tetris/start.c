@@ -14,7 +14,7 @@
 
 
 typedef struct sketch_figure {
-    const char *figure; 
+    const char *figure;
     int width;
     int height;
 } sketch_figure;
@@ -134,14 +134,14 @@ void draw_figure(matrix_figure shape) {
 
     for (int i = 0; i < shape.rows; i++) {
         for (int j = 0; j < shape.columns; j++) {
-			if(shape.work_figure[i][j] == 'X') {
-            	mvaddch(shape.current_y + i, shape.current_x + j * 2, ' '); 
-                mvaddch(shape.current_y + i, shape.current_x + j * 2 + 1, ' '); 
-				//mvaddch(y + i, x + j + 1, 'X'); // Рисуем маленькое окно без символов
-			}
+            if(shape.work_figure[i][j] == 'X') {
+                mvaddch(shape.current_y + i, shape.current_x + j * 2, ' ');
+                mvaddch(shape.current_y + i, shape.current_x + j * 2 + 1, ' ');
+                //mvaddch(y + i, x + j + 1, 'X'); // Рисуем маленькое окно без символов
+            }
         }
     }
-	
+    
 }
 
 // Функция для отрисовки маленького окна зеленого цвета
@@ -174,7 +174,7 @@ int main() {
     // char field[20][20] = {0};
 
      char field[20][10] = {
-        {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', }, 
+        {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', },
         {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', },
         {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', },
         {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ,' ', },
@@ -197,10 +197,10 @@ int main() {
     };
 
     init_ncurses(); // Инициализация ncurses
-	double timer = 700000; //half second
-	struct timeval before, after;
+    double timer = 700000; //half second
+    struct timeval before, after;
     gettimeofday(&before, NULL);
-	nodelay(stdscr, TRUE); // Разрешить getch не блокировать
+    nodelay(stdscr, TRUE); // Разрешить getch не блокировать
     //timeout(10000);
     // int x = 7, y = 1; // Стартовые координаты для фигуры
 
@@ -210,32 +210,32 @@ int main() {
     while (1) {
         //clear_window(); // Очистка окна
         //draw_border(); // Отрисовка границы
-		draw_field(field);
+        draw_field(field);
         draw_figure(figure); // Отрисовка фигуры
-		int ch;
-		if ((ch = getch()) != ERR) {
-			switch (ch) {
-				case KEY_UP: // Это будет поворот фигуры
+        int ch;
+        if ((ch = getch()) != ERR) {
+            switch (ch) {
+                case KEY_UP: // Это будет поворот фигуры
                     // matrix_figure rotate_figure(matrix_figure shape);
-					if (figure.current_y > OFFSET_Y) figure.current_y--;
-					break;
-				case KEY_DOWN:
-					if (check_down_position(figure, field) == 0) figure.current_y++;
+                    if (figure.current_y > OFFSET_Y) figure.current_y--;
+                    break;
+                case KEY_DOWN:
+                    if (check_down_position(figure, field) == 0) figure.current_y++;
                     else part_of_ship(figure, field);
-					break;
-				case KEY_LEFT:
+                    break;
+                case KEY_LEFT:
                     if (check_left_position(figure, field) == 0) figure.current_x -= 2;
-					// if (figure.current_x > OFFSET_X) figure.current_x -= 2;
-					break;
-				case KEY_RIGHT:
+                    // if (figure.current_x > OFFSET_X) figure.current_x -= 2;
+                    break;
+                case KEY_RIGHT:
                     if (check_right_position(figure, field) == 0) figure.current_x += 2;
-					// if (figure.current_x < FIELD_W + OFFSET_X + figure.columns) figure.current_x += 2;
-					break;
-				case 'q': // Выход по нажатию 'q'
-					endwin(); // Завершение работы с ncurses
-					exit(0);
-			}
-		}
+                    // if (figure.current_x < FIELD_W + OFFSET_X + figure.columns) figure.current_x += 2;
+                    break;
+                case 'q': // Выход по нажатию 'q'
+                    endwin(); // Завершение работы с ncurses
+                    exit(0);
+            }
+        }
         gettimeofday(&after, NULL);
         if (((double)after.tv_sec*100000000 + (double)after.tv_usec)-((double)before.tv_sec*100000000 + (double)before.tv_usec) > timer){ //time difference in microsec accuracy
             before = after;
@@ -383,4 +383,5 @@ init_pair(1, COLOR_WHITE, COLOR_BLACK); // Инициализация цвето
 */
 
 // gcc -Wall -Wextra -Werror start.c -lncurses
+
 
