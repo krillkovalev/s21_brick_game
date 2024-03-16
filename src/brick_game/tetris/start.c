@@ -57,10 +57,16 @@ int check_right_position(matrix_figure shape, char (*field)[10]);
 void part_of_ship(matrix_figure shape, char (*field)[10]);
 
 int check_rotate_position(matrix_figure shape, char (*field)[10]);
-// matrix_figure rotate_figure(matrix_figure shape, char (*field)[10]);
+int scoring(char (*field)[10]);
 void remove_figure(matrix_figure *shape);
 int get_random_shape(void);
 matrix_figure rotate_figure(matrix_figure shape);
+int check_full_row(char (*field)[10]);
+void remove_shift_row(int row, char (*field)[10]);
+
+void draw_next(int number);
+void draw_field_score(int score);
+void draw_field_level(int level);
 
 
 
@@ -95,57 +101,74 @@ int main() {
 	struct timeval before, after;
     gettimeofday(&before, NULL);
 	nodelay(stdscr, TRUE); // Разрешить getch не блокировать
+    //timeout(10000);
+    // int x = 7, y = 1; // Стартовые координаты для фигуры
 
+    //matrix_figure figure = create_figure(5);
 
     int random_number_of_figure = get_random_shape();
     matrix_figure figure = create_figure(random_number_of_figure);
+    int level = check_full_row(field);
+    while(1) {
+        int check = 0;
+        random_number_of_figure = get_random_shape();
+        while (check == 0) {
+            
+            draw_field(field);
+            draw_figure(figure); 
+            draw_next(random_number_of_figure);
+            int current_score = scoring(field);
+            draw_field_score(current_score);
+            draw_field_level(level);
+            int ch;
+            if ((ch = getch()) != ERR) {
+                switch (ch) {
+                    case KEY_UP:
+                        if(check_rotate_position(figure, field) == 0) figure = rotate_figure(figure);
+                        break;
+                    case KEY_DOWN:
+                        if (check_down_position(figure, field) == 0) figure.current_y++;
+                        else {
+                            part_of_ship(figure, field);
+                            remove_figure(&figure);
+                            check_full_row(field);
+                            check++;
+                            figure = create_figure(random_number_of_figure);
+                        }
+                        break;
+                    case KEY_LEFT:
+                        if (check_left_position(figure, field) == 0) figure.current_x -= 2;
+                        break;
+                    case KEY_RIGHT:
+                        if (check_right_position(figure, field) == 0) figure.current_x += 2;
+                        break;
+                    case 'q': // Выход по нажатию 'q'
+                        endwin(); // Завершение работы с ncurses
+                        exit(0);
+                }
+            }
+            gettimeofday(&after, NULL);
+            if (((double)after.tv_sec*100000000 + (double)after.tv_usec)-((double)before.tv_sec*100000000 + (double)before.tv_usec) > timer){ //time difference in microsec accuracy
+                before = after;
+                if (check_down_position(figure, field) == 0) figure.current_y++;
+                else{
+                    part_of_ship(figure, field);
+                    remove_figure(&figure);
+                    check_full_row(field);
+                    check++;
+                    figure = create_figure(random_number_of_figure);
+                } 
+            }
 
-    while (1) {
-        //clear_window(); // Очистка окна
-        //draw_border(); // Отрисовка границы
-		draw_field(field);
-        draw_figure(figure); // Отрисовка фигуры
-		int ch;
-		if ((ch = getch()) != ERR) {
-			switch (ch) {
-				case KEY_UP: // Это будет поворот фигуры
-                    if(check_rotate_position(figure, field) == 0) figure = rotate_figure(figure);
-					break;
-				case KEY_DOWN:
-					if (check_down_position(figure, field) == 0) figure.current_y++;
-                    else part_of_ship(figure, field);
-					break;
-				case KEY_LEFT:
-                    if (check_left_position(figure, field) == 0) figure.current_x -= 2;
-					// if (figure.current_x > OFFSET_X) figure.current_x -= 2;
-					break;
-				case KEY_RIGHT:
-                    if (check_right_position(figure, field) == 0) figure.current_x += 2;
-					break;
-				case 'q': // Выход по нажатию 'q'
-					endwin(); // Завершение работы с ncurses
-					exit(0);
-			}
-		}
-        gettimeofday(&after, NULL);
-        if (((double)after.tv_sec*100000000 + (double)after.tv_usec)-((double)before.tv_sec*100000000 + (double)before.tv_usec) > timer){ //time difference in microsec accuracy
-            before = after;
-            if (check_down_position(figure, field) == 0) figure.current_y++;
-            else{
-                part_of_ship(figure, field);
-                remove_figure(&figure);
-                random_number_of_figure = get_random_shape();
-                figure = create_figure(random_number_of_figure);
-            } 
-        }
-
-        
-        }
+            
+            }
+    }
 
     return 0;
 }
 
 
+// Проверка на движение вниз
 int check_down_position(matrix_figure shape, char (*field)[10]) {
     int answer_code = 0;
     if (shape.current_y == FIELD_H - shape.rows) {
@@ -168,6 +191,7 @@ int check_down_position(matrix_figure shape, char (*field)[10]) {
 }
 
 
+// Проверка на движение влево
 int check_left_position(matrix_figure shape, char (*field)[10]) {
     int answer_code = 0;
     if (shape.current_x == 0) {
@@ -190,6 +214,7 @@ int check_left_position(matrix_figure shape, char (*field)[10]) {
 }
 
 
+// Проверка на движение вправо
 int check_right_position(matrix_figure shape, char (*field)[10]) {
     int answer_code = 0;
     if (shape.current_x == FIELD_W * 2 - shape.columns * 2) {
@@ -212,24 +237,26 @@ int check_right_position(matrix_figure shape, char (*field)[10]) {
 }
 
 
-
-int check_rotate_position(matrix_figure shape, char (*field)[10]) {
+// Проверка на возможность поворота фигуры
+int check_rotate_position(matrix_figure shape, char (*field)[10])
+{
     int answer_code = 0;
 
-    for (int i = shape.current_x; i < shape.current_x + shape.rows; i++) {
-        for(int j = shape.current_y; j < shape.current_y + shape.columns; j++){
-            if(field[j][i] == 'X' || shape.current_x + j >= FIELD_W * 2 || field[i]) {
+    for (int y = shape.current_y; y < shape.current_y + shape.rows; y++) {
+        for(int x = shape.current_x; x < shape.current_x + shape.columns; x++){
+            if(field[y][x] == 'X' || shape.current_x >= (FIELD_W * 2 - shape.columns * 2)) {
                 answer_code = 1;
                 break;
             }
         }
+        if(answer_code) break;
     }
     return answer_code;
 }
 
 
 
-
+//  функция вращения фигуры на поле
 matrix_figure rotate_figure(matrix_figure shape) {
 
     matrix_figure rotated_figure;
@@ -251,7 +278,7 @@ matrix_figure rotate_figure(matrix_figure shape) {
 }
 
 
-
+// Фигура становиться частью игрового поля
 void part_of_ship(matrix_figure shape, char (*field)[10]) {
     for (int i = 0; i < shape.rows; i++) {
         for (int j = 0; j < shape.columns; j++) {
@@ -266,6 +293,47 @@ void part_of_ship(matrix_figure shape, char (*field)[10]) {
 
 
 
+// Функция проверки на заполненность рядов, возвращает от 0 до 4(максимум заполненных рядов) - нужно для подсчета очков!
+ int check_full_row(char (*field)[10]) {
+    int full_row = 0;
+    for (int i = FIELD_H - 1; i >= 0; i--) {
+        int full_flag = 0;
+        for (int j = 0; j < FIELD_W; j++) {
+            if(field[i][j] == 'X') {
+                full_flag++;
+            }
+        }
+    if(full_flag == FIELD_W) {
+        full_row++;
+        remove_shift_row(i, field);
+        }
+    }
+    return full_row;
+}
+
+int scoring(char (*field)[10]) {
+    int score = 0;
+    int full_row = check_full_row(field);
+    switch (full_row) {
+        case 1:
+            score = 100;
+            break;
+        case 2:
+            score = 300;
+            break;
+        case 3:
+            score = 700;
+            break;
+        case 4:
+            score = 1500;
+            break;
+        default:
+            score = 0;    
+    }
+    return score;
+}
+
+// Удаление фигуры
 void remove_figure(matrix_figure *shape) {
   memset(shape, 0, sizeof(*shape));
   if (shape->work_figure != NULL) {
@@ -279,7 +347,19 @@ void remove_figure(matrix_figure *shape) {
 
 
 
+// Удаляем заполненную строку
+void remove_shift_row(int row, char (*field)[10]) {  // принимает номер которую удаляем и все что выше едет вниз
+  for (int y = row; y > 0; y--) {            // y строка
+    for (int x = 0; x < FIELD_W; x++) {  // x столбец
+      field[y][x] = field[y - 1][x];
+    }
+  }
+}
 
+
+
+
+// Удаление матрицы фигуры
 void free_matrix(char **matrix, int rows) {
   for (int i = 0; i < rows; i++) {
     free(matrix[i]); // Дописать обнуление всех полей
@@ -288,7 +368,7 @@ void free_matrix(char **matrix, int rows) {
 }
 
 
-
+// Получаем фигуру рандомно
 int get_random_shape(void) {
     time_t now;
     struct tm *tm;
@@ -329,7 +409,7 @@ matrix_figure create_figure(int number) {
 }
 
 
-
+// Создаем матрицу фигуры 
 char **create_matrix(int rows, int columns) {
   char **matrix = (char **)malloc(rows * sizeof(char *));
   if (matrix == NULL) {
@@ -368,7 +448,7 @@ void draw_border() {
     refresh(); // Обновление отображения
 }
 
-// Функция для отрисовки маленького окна зеленого цвета
+// Функция для отрисовки фигуры на поле
 void draw_figure(matrix_figure shape) {
 
     init_pair(1, COLOR_GREEN, COLOR_RED); // Инициализация пары цветов
@@ -379,19 +459,20 @@ void draw_figure(matrix_figure shape) {
 			if(shape.work_figure[i][j] == 'X') {
             	mvaddch(OFFSET_Y + shape.current_y + i, OFFSET_X + shape.current_x + j * 2, ' '); 
                 mvaddch(OFFSET_Y + shape.current_y + i, OFFSET_X + shape.current_x + j * 2 + 1, ' '); 
-				//mvaddch(y + i, x + j + 1, 'X'); // Рисуем маленькое окно без символов
+
 			}
         }
     }
 	
 }
 
-// Функция для отрисовки маленького окна зеленого цвета
+// Функция для отрисовки поля
 void draw_field(char (*field)[10]) {
 
     init_pair(2, COLOR_WHITE, COLOR_WHITE); // Инициализация пары цветов
     init_pair(3, COLOR_WHITE, COLOR_BLUE); // Инициализация пары цветов
 
+    //attron(COLOR_PAIR(3)); // Активация цвета
     for (int i = 0; i < 20; i++) {
         for (int j = 0; j < 10; j++) {
             if (field[i][j] != 'X') {
@@ -412,6 +493,74 @@ void draw_field(char (*field)[10]) {
 }
 
 
+// Отрисовка поля для выводы текущего счета и рекорда
+void draw_field_score(int score) {
+    init_pair(4, COLOR_BLUE, COLOR_WHITE); // Инициализация пары цветов
+    WINDOW *score_win;
+    int startx = 26; 
+    int starty = 2;
+    int width = 12;
+    int height = 9;
+
+    score_win = newwin(height, width, starty, startx);
+    mvwprintw(score_win, 0, 1, "HIGH SCORE");
+    mvwprintw(score_win, 4, 3, "SCORE: %d", score);
+    wbkgd(score_win, COLOR_PAIR(4));
+    wrefresh(score_win);
+    
+}
+
+// Отрисовка поля для вывода вида следующей фигуры
+void draw_next(int number) {
+    init_pair(4, COLOR_BLUE, COLOR_WHITE); // Инициализация пары цветов
+    WINDOW *next_figure_win;
+    int startx = 26; 
+    int starty = 12;
+    int width = 12;
+    int height = 6;
+
+    next_figure_win = newwin(height, width, starty, startx);
+    //box(next_figure_win, 0 , 0);
+    mvwprintw(next_figure_win, 0, 4, "NEXT");
+    wbkgd(next_figure_win, COLOR_PAIR(4));
+
+    init_pair(10, COLOR_GREEN, COLOR_RED); // Инициализация пары цветов
+    wattron(next_figure_win, COLOR_PAIR(10)); // Активация цвета
+
+    int k = 0;
+    for(int i = 0; i < figures[number].height; i++) {
+        for(int j = 0; j < figures[number].width; j++) {
+
+            if(figures[number].figure[k] == 'X') {
+                
+            	mvwaddch(next_figure_win, i + 3, j * 2 + 3, ' '); 
+                mvwaddch(next_figure_win, i + 3, j * 2 + 4, ' '); 
+                
+			}
+            k++;
+        }
+    }
+    wattroff(next_figure_win, COLOR_PAIR(10)); // Деактивация цвета
+    wrefresh(next_figure_win); 
+}
+
+// Отрисовка поля для вывода номера уровня
+void draw_field_level(int level) {
+    init_pair(4, COLOR_BLUE, COLOR_WHITE); // Инициализация пары цветов
+    WINDOW *level_win;
+    int startx = 26; 
+    int starty = 19;
+    int width = 12;
+    int height = 3;
+
+    level_win = newwin(height, width, starty, startx);
+    box(level_win, 4 , 4);
+    // mvwprintw(level_win, 0, 3, "LEVEL");
+    mvwprintw(level_win, 1, 2, "LEVEL %d", level);
+    wbkgd(level_win, COLOR_PAIR(4));
+    wrefresh(level_win);
+}
+
 
 
 
@@ -428,5 +577,5 @@ init_pair(1, COLOR_WHITE, COLOR_BLACK); // Инициализация цвето
 
 */
 
-// gcc -Wall -Wextra -Werror start.c -lncurses
+// gcc -Wall -Wextra -Werror -std=c11 start.c -lncurses
 
