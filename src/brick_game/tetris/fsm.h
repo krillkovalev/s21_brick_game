@@ -90,6 +90,9 @@ typedef enum {
 #define FIELD_H 20
 #define FIELD_W 10
 
+// Начальная скорость
+#define START_SPEED 600000
+
 
 // ------------------------------------------------------------------------------
 // ------------------------------ Объявления функций ----------------------------
@@ -108,7 +111,7 @@ void free_matrix(char **matrix, int rows);
 void remove_figure(matrix_figure *shape);
 
 
-void updateCurrentState(state_of_game *state, UserAction_t key_now, GameInfo_t *game, const sketch_figure figures[], struct timeval *before);
+void updateCurrentState(state_of_game *state, UserAction_t key_now, GameInfo_t *game, const sketch_figure figures[], struct timeval *before, FILE *file);
 
 
 int check_left_position(matrix_figure shape, char **field);
