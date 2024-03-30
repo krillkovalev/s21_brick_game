@@ -2,7 +2,6 @@
 #define FSM_H
 
 
-
 #include <ncurses.h>
 #include <string.h>
 #include <stdlib.h>
@@ -65,15 +64,6 @@ typedef enum {
 } UserAction_t;
 
 
-// GameInfo_t updateCurrentState();
-
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-
-
 // Отступы от окна терминала
 #define OFFSET_X 4
 #define OFFSET_Y 2
@@ -99,9 +89,9 @@ typedef enum {
 // ------------------------------------------------------------------------------
 
 
-void init_ncurses();
+void init_ncurses(void);
 void game_process(const sketch_figure figures[]);
-int get_random_shape();
+int get_random_shape(void);
 UserAction_t userInput(int user_input, bool hold);
 GameInfo_t init_game(FILE **file, const sketch_figure figures[]);
 char **create_matrix(int rows, int columns);
@@ -130,7 +120,7 @@ int check_full_row(char **field);
 int count_score(int rows);
 
 
-
+// https://rocketchat-student.21-school.ru/channel/content_help?msg=Y3j9AWpfxQGXHg8Sj - вопрос о неточностях
 // ------------------------------------------------------------------------------
 // ----------------------------------- Отрисовка --------------------------------
 // ------------------------------------------------------------------------------
@@ -144,55 +134,4 @@ void draw_field_level(int level);
 void draw_service_field(char *text, int width, int height);
 
 
-
-
-
-
-
-
-
-// void draw_field(char **field);
-// void draw_figure(matrix_figure shape, int number);
-
-// void clear_window();
-// void draw_border();
-// matrix_figure create_figure(int number);
-// char **create_matrix(int rows, int columns);
-// void free_matrix(char **matrix, int rows);
-// int check_down_position(matrix_figure shape, char (*field)[10]);
-// int check_left_position(matrix_figure shape, char (*field)[10]);
-// int check_right_position(matrix_figure shape, char (*field)[10]);
-// int check_сreate_position(char (*field)[10]);
-// void part_of_ship(matrix_figure shape, char (*field)[10]);
-
-// int check_rotate_position(matrix_figure shape, char (*field)[10]);
-// void remove_figure(matrix_figure *shape);
-
-// matrix_figure rotate_figure(matrix_figure shape);
-// int check_full_row(char (*field)[10]);
-// void remove_shift_row(int row, char (*field)[10]);
-
-// void draw_next_field(int number);
-// void draw_field_score(int high_score, int score);
-// void draw_field_level(int level);
-// void draw_service_field(char *text, int width, int height);
-// void draw_figure(matrix_figure shape, int number);
-
-// char **create_matrix(int rows, int columns);
-// matrix_figure create_figure(int number);
-
-
-// int count_score(int rows);
-
-// // ------------ New functions ---------------
-
-// char **create_array(int width, int height);
-
-// FILE *init_game(GameInfo_t *game);
-// void draw_all(GameInfo_t game, state_of_game state, int random_number, matrix_figure figure);
-// void updateCurrentState(state_of_game *state, UserAction_t key_now, /*GameInfo_t game,*/ int *quit);
-
-
 #endif
-
-// https://rocketchat-student.21-school.ru/channel/content_help?msg=Y3j9AWpfxQGXHg8Sj - вопрос о неточностях
