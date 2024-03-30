@@ -38,13 +38,14 @@ test: s21_brick_game.a
 	./test
 	make clean
 
-gcov_report: s21_brick_game.a
-	$(CC) $(CFLAGS) --coverage $(LOGIC) $(TEST_LIBS) -o test
+gcov_report:
+	$(CC) $(CFLAGS) $(RENDERING) --coverage s21_other_functions.c fsm_tetris.c $(TEST) $(TEST_LIBS) -lm -o test
 	./test
-	lcov -t "test" -o test_report.info -c -d . #--rc lcov_branch_coverage=1
-	genhtml -o report test_report.info #--rc lcov_branch_coverage=1
-	rm -rf *.o *.a *.gch *.gcno test
+	lcov -t "test" -o test_report.info -c -d .
+	genhtml -o report test_report.info
+	rm -rf *.o *.a  *.gch *.gcno test
 	open ./report/index.html 
+
 
 
 clean:
