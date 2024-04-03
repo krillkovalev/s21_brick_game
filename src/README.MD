@@ -23,4 +23,4 @@ felicidd/school21
     EXIT - Если игрок нажимает на кнопку 'q' или 'Q', то игра завершается.
 
 
-![fsm_tetris](FSM_tetris.jpeg)
+![fsm_tetris](FSM_tetris.jpg)
