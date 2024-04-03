@@ -1,11 +1,11 @@
-#include "fsm.h"
+#include "c7_tetris.h"
 
 /**
  * @brief Преобразуем пользовательский ввод в структуру
  *
  * @param file Файл, в котором хранится рекордный результат
  * @param figures Массив шаблонов фигур
- * 
+ *
  * @return Возвращается созданный объект игры
  */
 // Инициализируем игру
@@ -38,54 +38,43 @@ GameInfo_t init_game(FILE **file, const sketch_figure figures[]) {
   return new_game;
 }
 
-
 /**
- * @brief Основной игровой процесс до нажатия 'q' или 'Q'
+ * @brief Преобразуем пользовательский ввод в структуру
  *
- * @param figures Массив шаблонов фигур
+ * @param user_input Пользовательский ввод
+ * @param hold Зажатие клавиши (для будующих проектов)
+ *
+ * @return Преобразованный ввод
  */
-void game_process(const sketch_figure figures[]) {
-  struct timeval before;
-  gettimeofday(&before, NULL);
+UserAction_t userInput(int user_input, bool hold) {
+  UserAction_t action = No_enter;
 
-  state_of_game state = START;
-  UserAction_t key_now = No_enter;
-
-  bool quit_flag = true;
-
-  // Играем пока не нажали на q или Q
-  while (quit_flag) {
-    FILE *high_score_file = NULL;
-    GameInfo_t game = init_game(&high_score_file, figures);
-    draw_main_field(game.field);
-    state = START;
-    // Играем пока не дошли до game_over
-    while (game.game_over) {
-      if (state == START || state == GAME || state == GAME_OVER) {
-        key_now = userInput(getch(), true);
-      }
-
-      if (key_now == Exit) {
-        delete_game(&game, high_score_file);
-        quit_flag = false;
-        break;
-      }
-      updateCurrentState(&state, key_now, &game, figures, &before,
-                         high_score_file);
-
-      draw_all(game, state, figures[game.number_next_figure],
-               game.number_next_figure);
-    }
+  if (hold) {
+    if (user_input == KEY_UP)
+      action = Up;
+    else if (user_input == KEY_DOWN)
+      action = Down;
+    else if (user_input == KEY_LEFT)
+      action = Left;
+    else if (user_input == KEY_RIGHT)
+      action = Right;
+    else if (user_input == ' ')
+      action = Pause;
+    else if (user_input == 10 || user_input == 13)
+      action = Start;
+    else if (user_input == 'q' || user_input == 'Q')
+      action = Exit;
   }
-}
 
+  return action;
+}
 
 /**
  * @brief Проверка на движение влево
  *
  * @param shape Текущая фигура
  * @param field Матрица поля
- * 
+ *
  * @return 0 - если движение возможно, 1 - если движение не возможно
  */
 int check_left_position(matrix_figure shape, char **field) {
@@ -113,7 +102,7 @@ int check_left_position(matrix_figure shape, char **field) {
  *
  * @param shape Текущая фигура
  * @param field Матрица поля
- * 
+ *
  * @return 0 - если движение возможно, 1 - если движение не возможно
  */
 int check_right_position(matrix_figure shape, char **field) {
@@ -141,7 +130,7 @@ int check_right_position(matrix_figure shape, char **field) {
  *
  * @param shape Текущая фигура
  * @param field Матрица поля
- * 
+ *
  * @return 0 - если движение возможно, 1 - если движение не возможно
  */
 int check_down_position(matrix_figure shape, char **field) {
@@ -170,7 +159,7 @@ int check_down_position(matrix_figure shape, char **field) {
  *
  * @param shape Текущая фигура
  * @param field Матрица поля
- * 
+ *
  * @return 0 - если поворот, 1 - если поворот не возможно
  */
 int check_rotate_position(matrix_figure shape, char **field) {
@@ -205,7 +194,7 @@ int check_rotate_position(matrix_figure shape, char **field) {
  * @brief Проверка на заполненность рядов
  *
  * @param field Матрица поля
- * 
+ *
  * @return Возвращает от 0 до 4-х
  */
 int check_full_row(char **field) {
@@ -231,7 +220,7 @@ int check_full_row(char **field) {
  * @brief Проверка на game_over
  *
  * @param field Матрица поля
- * 
+ *
  * @return Возвращает от 0 до 4-х
  */
 int check_сreate_position(char **field) {
@@ -245,10 +234,9 @@ int check_сreate_position(char **field) {
   return answer_code;
 }
 
-
 /**
  * @brief Проверка на game_over
- * 
+ *
  * @return Возвращает номер фигуры от 0 до 6
  */
 int get_random_shape() {
@@ -267,7 +255,7 @@ int get_random_shape() {
  *
  * @param rows Количество рядов
  * @param columns Количество столбцов
- * 
+ *
  * @return Возвращаем указатель на выделенную память для матрицы
  */
 char **create_matrix(int rows, int columns) {
@@ -291,7 +279,7 @@ char **create_matrix(int rows, int columns) {
  *
  * @param sketch Массив шаблонов фигур
  * @param number Номер создаваемой фигуры
- * 
+ *
  * @return Возвращается созданная фигура
  */
 matrix_figure create_figure(sketch_figure sketch, int number) {
@@ -342,7 +330,6 @@ void delete_game(GameInfo_t *game, FILE *file) {
     game->game_over = 0;
   }
 }
-
 
 /**
  * @brief Очистка памяти для матрицы
@@ -395,7 +382,7 @@ void remove_figure(matrix_figure *shape) {
  * @brief Вращение фигуры
  *
  * @param shape Текущая фигура
- * 
+ *
  * @return Возвращается новая, повернутая фигура
  */
 matrix_figure rotate_figure(matrix_figure shape) {
@@ -425,9 +412,9 @@ matrix_figure rotate_figure(matrix_figure shape) {
  * @param row Номер, удаляемого ряда
  * @param field Игровое поле
  */
-void remove_shift_row(int row, char **field) {  
-  for (int y = row; y > 0; y--) {        
-    for (int x = 0; x < FIELD_W; x++) {  
+void remove_shift_row(int row, char **field) {
+  for (int y = row; y > 0; y--) {
+    for (int x = 0; x < FIELD_W; x++) {
       field[y][x] = field[y - 1][x];
     }
   }
@@ -437,7 +424,7 @@ void remove_shift_row(int row, char **field) {
  * @brief Функция подсчета очков
  *
  * @param rows Количество удаляемых рядов
- * 
+ *
  * @return Возвращается количество набранных очков
  */
 int count_score(int rows) {
@@ -466,4 +453,3 @@ void figure_down(GameInfo_t *game, const sketch_figure figures[]) {
                                game->number_next_figure);
   game->number_next_figure = get_random_shape();
 }
-
